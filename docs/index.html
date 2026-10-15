@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hybrid-time PINNs</title>
+  <meta name="description" content="Hybrid-time PINNs: Discontinuity-Aware Physics-Informed Neural Networks for Learning Hybrid Dynamical Systems. Project page with video, code and results." />
+  <style>
+    :root {
+      --text: #121212; --muted: #5b6573; --line: rgba(15, 23, 42, 0.12);
+      --card: rgba(255, 255, 255, 0.82); --card2: rgba(255, 255, 255, 0.92);
+      --shadow: 0 10px 28px rgba(2, 6, 23, 0.10); --shadow2: 0 14px 40px rgba(2, 6, 23, 0.14);
+      --accent: #2f6bff; --accentSoft: rgba(47, 107, 255, 0.12); --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--text); line-height: 1.6;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f6fb 22%, #e8ecf8 42%, #0b0c10 100%);
+      min-height: 100vh;
+    }
+    a { color: inherit; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10; background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+    }
+    .topbar .inner { max-width: 1100px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+    .home {
+      font-weight: 700; font-size: 14px; text-decoration: none; padding: 6px 12px; border-radius: 999px;
+      border: 1px solid var(--line); background: rgba(255, 255, 255, 0.6);
+    }
+    .home:hover { box-shadow: var(--shadow); }
+    nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px; }
+    nav a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 999px; border: 1px solid transparent; }
+    nav a:hover { background: rgba(15, 23, 42, 0.06); color: var(--text); }
+    main { max-width: 1100px; margin: 0 auto; padding: 40px 16px 80px; }
+    h1 { text-align: center; font-size: clamp(30px, 5.2vw, 56px); line-height: 1.08; letter-spacing: -0.03em; margin: 8px auto 20px; max-width: 980px; }
+    .buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 26px; }
+    .btn {
+      font-weight: 700; font-size: 13px; text-decoration: none; padding: 9px 16px; border-radius: 12px;
+      border: 1px solid var(--line); background: rgba(255, 255, 255, 0.65); transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .btn.primary { border-color: rgba(47, 107, 255, 0.26); background: rgba(47, 107, 255, 0.10); }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow2); padding: 20px; margin-bottom: 22px; }
+    .card > h2 { margin: 0 0 14px; font-size: 22px; }
+    .card > h2.center { text-align: center; }
+    .card > h2.center::after { content: ""; display: block; width: 120px; height: 3px; margin: 8px auto 0; border-radius: 999px; background: rgba(47, 107, 255, 0.55); }
+    .label { font-weight: 700; font-size: 16px; margin: 0 0 12px; }
+    .video { max-width: 820px; margin: 0 auto; background: #000; border-radius: 16px; padding: 12px; box-shadow: var(--shadow2); }
+    .video video { width: 100%; display: block; border-radius: 8px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sub { border: 1px solid var(--line); border-radius: 14px; background: var(--card2); box-shadow: 0 12px 28px rgba(2, 6, 23, 0.10); overflow: hidden; }
+    .sub .head { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    .sub .head h3 { margin: 0; font-size: 16px; }
+    .sub .head p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+    .sub .body { padding: 14px 16px; }
+    .sub .foot { padding: 0 16px 14px; text-align: right; }
+    .codecard { padding: 16px; text-align: left; }
+    .codecard h3 { margin: 0 0 6px; font-size: 16px; }
+    .codecard p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+    .codecard .btn { display: inline-block; }
+    .codecard .center { text-align: center; }
+    .figure { background: #fff; border-radius: 14px; box-shadow: 0 10px 24px rgba(2, 6, 23, 0.08); padding: 10px; }
+    .figure img { width: 100%; display: block; }
+    .abstract { max-width: 780px; margin: 0 auto; text-align: center; font-size: 15px; }
+    ol.contrib { list-style: none; counter-reset: c; max-width: 960px; margin: 0 auto; padding: 0; }
+    ol.contrib li { counter-increment: c; position: relative; padding: 0 0 0 36px; margin: 0 0 18px; }
+    ol.contrib li::before { content: counter(c); position: absolute; left: 6px; top: 0; font-weight: 700; }
+    .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+    @media (max-width: 760px) { .grid.two, .grid.three { grid-template-columns: 1fr; } nav { display: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="home" href="https://shivanshutripath.github.io/">Home</a>
+      <nav>
+        <a href="#video">Video</a><a href="#code">Code</a><a href="#abstract">Abstract</a>
+        <a href="#contributions">Contributions</a><a href="#methodology">Methodology</a><a href="#results">Results</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Hybrid-time PINNs: Discontinuity-Aware Physics-Informed Neural Networks for Learning Hybrid Dynamical Systems</h1>
+    <div class="buttons">
+      <a class="btn primary" href="https://github.com/shivanshutripath/dapinn-hybrid-surrogates">Code</a>
+      <a class="btn" href="assets/pin_extraction_video.mp4">Video</a>
+    </div>
+
+    <section class="card" id="video">
+      <p class="label">Demonstration Video</p>
+      <div class="video">
+        <video controls preload="metadata" playsinline src="assets/pin_extraction_video.mp4"></video>
+      </div>
+    </section>
+
+    <section class="card" id="code">
+      <h2 class="center">Code</h2>
+      <div class="grid three">
+        <div class="sub codecard">
+          <h3>DA-PINN and Algorithm 1</h3>
+          <p>dapinn.py</p>
+          <div class="center"><a class="btn" href="https://github.com/shivanshutripath/dapinn-hybrid-surrogates/blob/main/dapinn.py">Open Code</a></div>
+        </div>
+        <div class="sub codecard">
+          <h3>Bouncing Ball</h3>
+          <p>bouncing_ball/</p>
+          <div class="center"><a class="btn" href="https://github.com/shivanshutripath/dapinn-hybrid-surrogates/tree/main/bouncing_ball">Open Code</a></div>
+        </div>
+        <div class="sub codecard">
+          <h3>Robotic Pin Extraction (MuJoCo)</h3>
+          <p>pin_extraction/</p>
+          <div class="center"><a class="btn" href="https://github.com/shivanshutripath/dapinn-hybrid-surrogates/tree/main/pin_extraction">Open Code</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="abstract">
+      <h2 class="center">Abstract</h2>
+      <p class="abstract">
+        Hybrid dynamical systems evolve smoothly but jump at discrete events, such as contacts and impacts in
+        robotics. High-fidelity physics-based simulations of these systems are often too slow for real-time use.
+        We develop surrogate models that combine neural networks with the known physics of the hybrid system.
+        Discontinuity-aware physics-informed neural networks (DA-PINNs) use one network for each smooth segment
+        between jumps and learn, together with the networks, the jump times, the sequence of operating modes and
+        the physical parameters. On a bouncing ball, whose exact solution is known, DA-PINNs find the number and
+        the times of the impacts and the restitution coefficient. We also apply them to robotic disassembly, with
+        MuJoCo as the high-fidelity simulator: a robot pulls a press-fitted pin out of a housing through a
+        compliant tool, and the pin sticks and slips several times before it is released. DA-PINNs find the
+        number and the sequence of these events, including whether each slip ends in an arrest or in the release
+        of the pin, and the static and kinetic friction coefficients within 2%.
+      </p>
+    </section>
+
+    <section class="card" id="contributions">
+      <h2 class="center">Contributions</h2>
+      <ol class="contrib">
+        <li>We propose DA-PINNs, which place one neural network on each flow interval of a hybrid system and train
+          the networks, the jump times and the physical parameters together on the data and on the flow, guard
+          and reset conditions of the known physics.</li>
+        <li>We give an algorithm that selects the number of jumps and the guard that triggers each jump, so that
+          the surrogate also recovers the sequence of operating modes.</li>
+        <li>On a bouncing ball and on the extraction of a press-fitted pin by a robot simulated in MuJoCo,
+          DA-PINNs recover the events and the parameters that govern them: the restitution of the ball within
+          0.1%, and the static and kinetic friction of the press fit within 2%.</li>
+      </ol>
+    </section>
+
+    <section class="card" id="methodology">
+      <h2>Methodology</h2>
+      <div class="grid">
+        <div class="sub">
+          <div class="head"><h3>Hybrid Execution</h3><p>Smooth flows between jumps; one network per flow interval.</p></div>
+          <div class="body"><div class="figure"><img src="assets/hybrid_execution.png" alt="Hybrid execution of a hybrid dynamical system" loading="lazy" /></div></div>
+          <div class="foot"><a class="btn" href="assets/hybrid_execution.png">Open Figure</a></div>
+        </div>
+        <div class="grid two">
+          <div class="sub">
+            <div class="head"><h3>MuJoCo Cell</h3><p>A gantry robot pulls a press-fitted pin through a series-elastic puller.</p></div>
+            <div class="body"><div class="figure"><img src="assets/pin_cell.png" alt="MuJoCo cell with gantry robot, puller and press-fitted pin" loading="lazy" /></div></div>
+            <div class="foot"><a class="btn" href="assets/pin_cell.png">Open Figure</a></div>
+          </div>
+          <div class="sub">
+            <div class="head"><h3>Force and Displacement</h3><p>Stick (S), slip (K) and release (R) during the pull.</p></div>
+            <div class="body"><div class="figure"><img src="assets/force_disp.png" alt="Spring force and displacement of the hook and the pin" loading="lazy" /></div></div>
+            <div class="foot"><a class="btn" href="assets/force_disp.png">Open Figure</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="results">
+      <h2>Results</h2>
+      <div class="grid">
+        <div class="sub">
+          <div class="head"><h3>Bouncing Ball</h3><p>Four impacts found for every noise seed; restitution within 0.1%.</p></div>
+          <div class="body"><div class="figure"><img src="assets/ball_dapinn.png" alt="Bouncing ball: height, velocity and loss over the number of jumps" loading="lazy" /></div></div>
+          <div class="foot"><a class="btn" href="assets/ball_dapinn.png">Open Figure</a></div>
+        </div>
+        <div class="sub">
+          <div class="head"><h3>Robotic Pin Extraction</h3><p>Mode sequence SKSKSKSKR recovered; friction coefficients within 2%.</p></div>
+          <div class="body"><div class="figure"><img src="assets/pin_dapinn.png" alt="Pin extraction: spring force, pin velocity and loss of each candidate" loading="lazy" /></div></div>
+          <div class="foot"><a class="btn" href="assets/pin_dapinn.png">Open Figure</a></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -79,6 +79,7 @@ or step by step:
 cd pin_extraction
 python3 pin_experiment.py --picture   # MuJoCo pull -> data/pin.npz              (~1 s)
 python3 make_media.py                 # GIF, MP4, force/displacement graphs       (~15 s)
+python3 make_submission_video.py      # 1-min 1080p MP4 with captions and credits  (~75 s)
 python3 dapinn_pin.py                 # DA-PINN + Algorithm 1 on the pin          (~7 min, 7 processes)
 python3 dapinn_pin.py --plot-only     # table and figure from saved results
 
@@ -115,6 +116,7 @@ pin_extraction/
   sim_utils.py            FrictionLaw (static > kinetic friction), engage(), motion profiles
   pin_experiment.py       robot program; records every physics step (4 kHz) -> data/pin.npz
   make_media.py           the video (GIF, MP4) and the force/displacement graphs
+  make_submission_video.py  the one-minute supplementary video (1080p MP4, captions, anonymous credits)
   dapinn_pin.py           hybrid family of the pin (modes S, K, R), Algorithm 1 in parallel, table, figure
   data/pin.npz            the recorded pull, with hidden states and true events
   results/                pin.json (every number), pin_curves.npz, pin_table.tex, pin_summary.json

@@ -25,6 +25,11 @@ reaches the static friction, slips (orange) for 17 ms, and sticks again. On
 the fourth slip it leaves the fit (green) and rings on the spring. Slips are
 shown 20× slower. The same video as MP4: [media/pin_extraction.mp4](media/pin_extraction.mp4).*
 
+**Supplementary video** (1 min, 1920×1080, with captions):
+[media/pin_extraction_video.mp4](media/pin_extraction_video.mp4). It shows the
+cell with its parts labelled, the pull in real time, and a slow-motion replay
+that explains each stick, slip and release.
+
 ---
 
 ## Results
@@ -121,7 +126,8 @@ pin_extraction/
   data/pin.npz            the recorded pull, with hidden states and true events
   results/                pin.json (every number), pin_curves.npz, pin_table.tex, pin_summary.json
   figs/                   pin_dapinn.pdf / .png
-media/                    pin_extraction.gif / .mp4, pin_force_displacement.png / .pdf, pin_cell.png
+media/                    pin_extraction.gif / .mp4, pin_extraction_video.mp4 (supplementary video),
+                          pin_force_displacement.png / .pdf, pin_cell.png
 ```
 
 ---

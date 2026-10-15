@@ -1,0 +1,52 @@
+<!--
+  device_pin.xml - the device of the paper experiment: a housing with a
+  press-fitted steel pin (a dowel pin), which the robot has to pull out.
+
+  scene_pin.xml adds the table and the gantry robot with its compliant puller.
+  The pin is 50 g with its head, pressed 19.5 mm deep. The interference fit presses on it with N = 40 N;
+  the friction it can hold is mu N, static mu_s = 0.45 (18 N) and kinetic
+  mu_k = 0.30 (12 N). MuJoCo has one friction value per joint, so the slide
+  joint's frictionloss is switched between the two by FrictionLaw in
+  sim_utils.py, and set to 0 once the pin has left the fit. The value
+  below is only the starting (static) one.
+
+  Units: meters, kilograms, seconds, newtons. Table top at z = 0.42.
+-->
+<mujoco model="pin_device">
+
+  <compiler angle="radian" autolimits="true"/>
+
+  <default>
+    <default class="device">
+      <geom solref="0.002 1" solimp="0.95 0.99 0.0005" friction="0.5 0.005 0.0001"/>
+      <default class="housing">
+        <geom type="box" rgba="0.3 0.32 0.36 1"/>
+      </default>
+      <!-- The pin and its bore touch nothing: the fit is the joint friction. -->
+      <default class="no_contact">
+        <geom contype="0" conaffinity="0"/>
+      </default>
+    </default>
+  </default>
+
+  <worldbody>
+    <!-- Housing, clamped on the table: a base plate and a block with the bore. -->
+    <body name="housing" childclass="device">
+      <geom name="housing_base" class="housing" size="0.05 0.035 0.0025" pos="0 0 0.4225"/>
+      <geom name="housing_block" class="no_contact" type="box" size="0.022 0.016 0.012" pos="0 0 0.437"
+            rgba="0.36 0.38 0.42 1"/>
+    </body>
+
+    <!-- The pin. Body origin = top of the block, where the head of the seated
+         pin rests. solreffriction / solimpfriction make the friction stick hard
+         (creep below 0.1 mm/s under 17 N). -->
+    <body name="pin" pos="0 0 0.449" childclass="device">
+      <joint name="pin" type="slide" axis="0 0 1" range="-0.0005 0.06" damping="0" frictionloss="18"
+             solreffriction="0.0005 1" solimpfriction="0.999 0.999 0.001"/>
+      <geom name="pin_shaft" class="no_contact" type="cylinder" size="0.004 0.0145" pos="0 0 -0.005" mass="0.040" rgba="0.8 0.8 0.85 1"/>
+      <geom name="pin_head"  class="no_contact" type="cylinder" size="0.006 0.002" pos="0 0 0.0115" mass="0.010" rgba="0.8 0.8 0.85 1"/>
+      <site name="pin_top" pos="0 0 0.0135" size="0.0015" rgba="1 0.85 0 1"/>
+    </body>
+  </worldbody>
+
+</mujoco>

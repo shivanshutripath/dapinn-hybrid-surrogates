@@ -1,0 +1,7 @@
+# Pinned versions used for the numbers, tables and figures of the paper.
+# Install with:  pip install -r requirements.txt
+numpy==2.4.3
+torch==2.9.1
+matplotlib==3.10.8
+mujoco==3.14.0
+pillow>=10.0.0

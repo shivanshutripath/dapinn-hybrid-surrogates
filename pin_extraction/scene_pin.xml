@@ -1,0 +1,108 @@
+<!--
+  scene_pin.xml - the MuJoCo cell of the paper: a three-axis gantry robot
+  (position servos with damping on every axis) pulls a press-fitted pin (device_pin.xml) out of its housing through a
+  compliant puller.
+
+  The puller is a series-elastic tool: a hook at the TCP connected to the pin
+  through a spring (k = 2000 N/m, c = 2 N s/m) whose deflection it measures.
+  In MuJoCo the spring is a spatial tendon from the TCP to the top of the pin
+  (drawn as a line once it is engaged), switched on by pin_experiment.py when
+  the hook is on the pin. A tendon spring is a passive force: exactly k and c
+  (a weld or contact between the tool and a 50 g pin would add a second,
+  softer spring, because MuJoCo scales constraint stiffness with mass).
+
+  Run it:  python3 pin_experiment.py      (see ../README.md)
+-->
+<mujoco model="pin_extraction">
+
+  <compiler angle="radian" autolimits="true"/>
+
+  <!-- timestep 0.25 ms: a slip of the pin lasts about 17 ms. -->
+  <option timestep="0.00025" integrator="implicitfast"/>
+
+  <include file="device_pin.xml"/>
+
+  <visual>
+    <headlight diffuse="0.45 0.45 0.45" ambient="0.35 0.35 0.35" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global offwidth="960" offheight="720"/>
+    <quality shadowsize="2048"/>
+  </visual>
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512"
+             rgb1="0.2 0.3 0.4" rgb2="0.1 0.15 0.2"/>
+    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.2"/>
+  </asset>
+
+  <default>
+    <default class="cell">
+      <geom solref="0.002 1" solimp="0.95 0.99 0.0005" friction="0.8 0.005 0.0001"/>
+      <default class="visual">
+        <geom type="box" contype="0" conaffinity="0" rgba="0.72 0.74 0.78 1"/>
+      </default>
+    </default>
+  </default>
+
+  <worldbody>
+    <light pos="0 -0.4 1.6" dir="0 0.3 -1" directional="true" diffuse="0.55 0.55 0.55" castshadow="true"/>
+    <geom name="floor" type="plane" size="2 2 0.1" material="grid"/>
+
+    <body name="table" childclass="cell">
+      <geom name="table_top" type="box" size="0.40 0.40 0.02" pos="0 0 0.40" rgba="0.55 0.4 0.28 1"/>
+      <geom class="visual" size="0.025 0.025 0.19" pos=" 0.35  0.35 0.19" rgba="0.4 0.3 0.2 1"/>
+      <geom class="visual" size="0.025 0.025 0.19" pos=" 0.35 -0.35 0.19" rgba="0.4 0.3 0.2 1"/>
+      <geom class="visual" size="0.025 0.025 0.19" pos="-0.35  0.35 0.19" rgba="0.4 0.3 0.2 1"/>
+      <geom class="visual" size="0.025 0.025 0.19" pos="-0.35 -0.35 0.19" rgba="0.4 0.3 0.2 1"/>
+    </body>
+
+    <camera name="overview" pos="0 -0.42 0.70" xyaxes="1 0 0 0 0.6 0.8"/>
+    <camera name="closeup" pos="0 -0.20 0.53" xyaxes="1 0 0 0 0.42 0.91"/>
+
+    <body name="gantry_frame" childclass="visual">
+      <geom size="0.02 0.02 0.19" pos=" 0.34  0.36 0.61"/>
+      <geom size="0.02 0.02 0.19" pos=" 0.34 -0.36 0.61"/>
+      <geom size="0.02 0.02 0.19" pos="-0.34  0.36 0.61"/>
+      <geom size="0.02 0.02 0.19" pos="-0.34 -0.36 0.61"/>
+      <geom size="0.02 0.39 0.015" pos=" 0.34 0 0.815"/>
+      <geom size="0.02 0.39 0.015" pos="-0.34 0 0.815"/>
+    </body>
+
+    <!-- ===================== GANTRY ROBOT ===================== -->
+    <body name="gantry_bridge" childclass="cell">
+      <joint name="slide_y" type="slide" axis="0 1 0" range="-0.30 0.30" damping="250"/>
+      <geom class="visual" size="0.37 0.025 0.02" pos="0 0.06 0.85" mass="1.5" rgba="0.35 0.37 0.42 1"/>
+      <geom class="visual" size="0.03 0.05 0.025" pos=" 0.34 0.06 0.85" mass="0.25" rgba="0.95 0.65 0.15 1"/>
+      <geom class="visual" size="0.03 0.05 0.025" pos="-0.34 0.06 0.85" mass="0.25" rgba="0.95 0.65 0.15 1"/>
+      <body name="gantry_carriage">
+        <joint name="slide_x" type="slide" axis="1 0 0" range="-0.25 0.25" damping="150"/>
+        <geom class="visual" size="0.07 0.045 0.045" pos="0.02 0.02 0.85" mass="0.5" rgba="0.95 0.65 0.15 1"/>
+        <body name="gantry_head" pos="0 0 0.70">
+          <joint name="slide_z" type="slide" axis="0 0 1" ref="0.70" range="0.43 0.72" damping="160"/>
+          <geom class="visual" size="0.012 0.012 0.18" pos="0 0 0.23" mass="0.3" rgba="0.8 0.82 0.85 1"/>
+          <!-- The series-elastic puller: its body (looks only) and the hook at the TCP. -->
+          <geom name="puller_body" class="visual" type="cylinder" size="0.012 0.02" pos="0 0 0.03" mass="0.155" rgba="0.3 0.3 0.33 1"/>
+          <geom name="hook_rod" class="visual" type="cylinder" size="0.0015 0.005" pos="0 0 0.005" mass="0.001" rgba="0.6 0.6 0.65 1"/>
+          <geom name="hook" class="visual" type="sphere" size="0.003" mass="0.004" rgba="0.95 0.65 0.15 1"/>
+          <site name="tcp" type="sphere" size="0.002" rgba="1 0 1 1"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <tendon>
+    <!-- The puller spring, from the hook to the top of the pin. Stiffness,
+         damping, rest length and color are set when the hook engages. -->
+    <spatial name="puller" stiffness="0" damping="0" width="0.0008" rgba="0.95 0.65 0.15 0">
+      <site site="tcp"/>
+      <site site="pin_top"/>
+    </spatial>
+  </tendon>
+
+  <actuator>
+    <position name="motor_x" joint="slide_x" kp="5000"  ctrlrange="-0.25 0.25" forcerange="-60 60"/>
+    <position name="motor_y" joint="slide_y" kp="5000"  ctrlrange="-0.30 0.30" forcerange="-60 60"/>
+    <position name="motor_z" joint="slide_z" kp="10000" ctrlrange="0.43 0.72"  forcerange="-80 80"/>
+  </actuator>
+
+</mujoco>

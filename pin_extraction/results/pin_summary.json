@@ -1,0 +1,63 @@
+{
+ "constants": {
+  "g": 9.81,
+  "pin_mass": 0.05,
+  "puller_k": 2000.0,
+  "puller_c": 2.0,
+  "puller_rest_length": 0.029602993832433422,
+  "pin_top0": 0.4625,
+  "fit_normal": 40.0,
+  "mu_static": 0.45,
+  "mu_kinetic": 0.3,
+  "fit_length": 0.0195,
+  "pull_speed": 0.02,
+  "timestep": 0.00025
+ },
+ "results": {
+  "pin": {
+   "events_from_pull_start": [
+    [
+     0.5975,
+     "breakaway"
+    ],
+    [
+     0.6145,
+     "arrest"
+    ],
+    [
+     0.884,
+     "breakaway"
+    ],
+    [
+     0.901,
+     "arrest"
+    ],
+    [
+     1.1705,
+     "breakaway"
+    ],
+    [
+     1.1875,
+     "arrest"
+    ],
+    [
+     1.457,
+     "breakaway"
+    ],
+    [
+     1.464,
+     "exit"
+    ]
+   ],
+   "itinerary": "SKSKSKSKR",
+   "peak_force": 18.552,
+   "slip_durations_ms": [
+    17.0,
+    17.0,
+    17.0,
+    7.0
+   ],
+   "out_of_fit": true
+  }
+ }
+}
